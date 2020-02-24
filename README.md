@@ -30,8 +30,8 @@
 `GET /api/v1/entries/<int:id>`
 
 **Response**
--`404 Not Found` if does not exist
--`200 OK` on success
+- `404 Not Found` if does not exist
+- `200 OK` on success
 
 ```json
 {
