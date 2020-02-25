@@ -16,7 +16,7 @@
 ]
 ```
 
-### List all entries
+## List all entries
 **Definition**
 
 `GET /api/v1/entries/all`
@@ -27,7 +27,7 @@
 
 
 
-### Retrieve an entry
+## Retrieve an entry
 **Definition**
 
 `GET /api/v1/entries/<int:id>`
@@ -51,10 +51,21 @@
 
 
 
-### Delete an entry
+## Delete an entry
 **Definition**
 
 `DELETE /api/v1/entries/<int:id>`
+
+**Response**
+- `200 OK` on success
+
+
+
+
+## List n most recent posts in a community
+**Definition**
+
+`GET /api/v1/entries/<string:community>/top/<int:numOfEntries>`
 
 **Response**
 - `200 OK` on success

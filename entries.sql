@@ -13,6 +13,9 @@ CREATE TABLE entries (
     datePosted VARCHAR,
     UNIQUE(id)
 );
-INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(0,"title 0","bodyText 0","dankmemes","www.nytimes.com","username0","2020-02-24T12:34:56");
-INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(1,"title 1","bodyText 1","dankmemes","www.latimes.com","username1","2020-02-24T12:34:57");
+INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(0,"title 0","bodyText 0","betaTest","www.nytimes.com","username0","2020-02-24T12:34:56");
+INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(1,"first title","bodyText 1","soloSubreddit","www.latimes.com","username1","2020-02-25T12:34:57");
+INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(2,"this is the second title","bodyText 2","dankmemes","www.google.com","username2","2020-02-26T12:34:57");
+INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(3,"title 3","bodyText 3","dankmemes","www.facebook.com","username3","2020-02-27T12:34:57");
+INSERT INTO entries(id, title, bodyText, community, url, username, datePosted) VALUES(4,"title 4","bodyText 4","dankmemes","www.news.com","username3","2020-02-28T12:34:57");
 COMMIT;

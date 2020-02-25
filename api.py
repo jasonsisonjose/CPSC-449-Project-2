@@ -47,6 +47,12 @@ def entries():
     elif request.method == 'POST':
         return create_entry(request.data)
 
+@app.route('/api/v1/entries/<string:community>/top/<int:numOfEntries>', methods=['GET'])
+def get_community_top(community, numOfEntries):
+    community_entries = queries.entry_by_community(community=community)
+    myList = list(community_entries)
+    return myList[:numOfEntries]
+
 # Create a new entry
 def create_entry(entry):
     required_fields = ['id', 'title', 'bodyText', 'community', 'url', 'username', 'datePosted']
