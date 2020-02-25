@@ -30,16 +30,16 @@ def all_entries():
     all_entries = queries.all_entries()
     return list(all_entries)
 
-# Retrieve an entry given a unique id
+# Call a GET/DELETE given an id
 @app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
 def entry(id):
-    entry = queries.entry_by_id(id=id)
-    if entry:
-        return entry
-    else:
-        raise exceptions.NotFound()
+    if request.method == 'GET':
+        return get_entry_with_id(id)
+    elif request.method == 'DELETE':
+        queries.delete_entry(id=id)
+        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
 
-# Call a GET/POST
+# Call a general GET/POST
 @app.route('/api/v1/entries', methods=['GET','POST'])
 def entries():
     if request.method == 'GET':
@@ -81,6 +81,10 @@ def filter_entries(query_parameters):
 
     return list(map(dict, results))
 
-# Delete an entry
-def delete_entry(entry):
-    queries.delete_entry(**entry)
+# Return entry given an id
+def get_entry_with_id(id):
+    entry = queries.entry_by_id(id=id)
+    if entry:
+        return entry
+    else:
+        raise exceptions.NotFound()

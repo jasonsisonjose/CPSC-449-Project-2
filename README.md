@@ -30,6 +30,7 @@
 `GET /api/v1/entries/<int:id>`
 
 **Response**
+
 - `404 Not Found` if does not exist
 - `200 OK` on success
 
@@ -44,3 +45,23 @@
   "date": "YYYY-MM-DDTHH:MM:SS"
 }
 ```
+
+
+### Post an entry
+**Definition**
+
+`POST /api/v1/entries`
+
+**Response**
+
+- `201 CREATED` on success
+
+
+### Delete an entry
+**Definition**
+
+`DELETE /api/v1/entries/<int:id>`
+
+**Response**
+
+- `200 OK` on success
