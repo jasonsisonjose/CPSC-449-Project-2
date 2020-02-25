@@ -30,14 +30,14 @@ def all_entries():
     all_entries = queries.all_entries()
     return list(all_entries)
 
-# GET/DELETE given an id
-@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
+# GET/DELETE/PUT given an id
+@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE','PUT'])
 def entry(id):
     if request.method == 'GET':
         return get_entry_with_id(id)
     elif request.method == 'DELETE':
         queries.delete_entry(id=id)
-        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
+        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK  
 
 # General GET/POST
 @app.route('/api/v1/entries', methods=['GET','POST'])
@@ -60,6 +60,13 @@ def get_all_recent(numOfEntries):
     all_entries = queries.all_entries_ordered(numOfEntries=numOfEntries)
     myList = list(all_entries)
     return myList
+
+# GET n top-scoring posts, all communities
+@app.route('/api/v1/entries/all/top/<int:numOfEntries>', methods=['GET'])
+def get_top_scoring(numOfEntries):
+    top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
+    myList = list(top_entries)
+    return myList 
 
 # Create a new entry
 def create_entry(entry):
