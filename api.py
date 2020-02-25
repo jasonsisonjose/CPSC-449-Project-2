@@ -47,10 +47,17 @@ def entries():
     elif request.method == 'POST':
         return create_entry(request.data)
 
-@app.route('/api/v1/entries/<string:community>/top/<int:numOfEntries>', methods=['GET'])
-def get_community_top(community, numOfEntries):
+# GET n most recent entries, specific community
+@app.route('/api/v1/entries/<string:community>/recent/<int:numOfEntries>', methods=['GET'])
+def get_community_recent(community, numOfEntries):
     community_entries = queries.entry_by_community(community=community)
     myList = list(community_entries)
+    return myList[:numOfEntries]
+
+# GET n most recent entries, all communities
+@app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
+def get_all_recent(numOfEntries):
+    myList = all_entries()
     return myList[:numOfEntries]
 
 # Create a new entry

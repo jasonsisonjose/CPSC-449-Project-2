@@ -22,7 +22,7 @@
 `GET /api/v1/entries/all`
 
 **Response**
-- `200 OK` on success
+- `200 OK` on success  
 
 
 
@@ -34,7 +34,7 @@
 
 **Response**
 - `404 Not Found` if does not exist
-- `200 OK` on success
+- `200 OK` on success  
 
 
 
@@ -46,7 +46,7 @@
 
 **Response**
 - `201 CREATED` on success
-- `409 CONFLICT` if ID already exists
+- `409 CONFLICT` if ID already exists  
 
 
 
@@ -57,7 +57,7 @@
 `DELETE /api/v1/entries/<int:id>`
 
 **Response**
-- `200 OK` on success
+- `200 OK` on success  
 
 
 
@@ -65,7 +65,18 @@
 ## List n most recent posts in a community
 **Definition**
 
-`GET /api/v1/entries/<string:community>/top/<int:numOfEntries>`
+`GET /api/v1/entries/<string:community>/recent/<int:numOfEntries>`
 
 **Response**
-- `200 OK` on success
+- `200 OK` on success  
+
+
+
+
+## List n most recent posts in all communities
+**Definition**
+
+`GET /api/v1/entries/all/recent/<int:numOfEntries>`
+
+**Response**
+- `200 OK` on success  
