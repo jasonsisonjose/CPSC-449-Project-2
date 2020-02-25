@@ -54,11 +54,19 @@ def get_community_recent(community, numOfEntries):
     myList = list(community_entries)
     return myList[:numOfEntries]
 
+#
+# TODO: modify sql query to return most recent
+#
+
 # GET n most recent entries, all communities
 @app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
 def get_all_recent(numOfEntries):
     myList = all_entries()
     return myList[:numOfEntries]
+
+#
+# TODO: modify sql query to return most recent
+#
 
 # Create a new entry
 def create_entry(entry):
