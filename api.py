@@ -4,12 +4,6 @@ from flask import request
 from flask_api import status, exceptions
 import pugsql
 
-#
-# TODO:
-#   When retrieving lists of posts, do not include the text
-#         or resource URL for the post.
-#
-
 # Create instance of Flask
 app = flask_api.FlaskAPI(__name__)
 app.config.from_envvar('APP_CONFIG')
@@ -36,7 +30,7 @@ def all_entries():
     all_entries = queries.all_entries()
     return list(all_entries)
 
-# Call a GET/DELETE given an id
+# GET/DELETE given an id
 @app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
 def entry(id):
     if request.method == 'GET':
@@ -45,7 +39,7 @@ def entry(id):
         queries.delete_entry(id=id)
         return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
 
-# Call a general GET/POST
+# General GET/POST
 @app.route('/api/v1/entries', methods=['GET','POST'])
 def entries():
     if request.method == 'GET':

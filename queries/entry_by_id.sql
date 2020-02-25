@@ -1,3 +1,3 @@
 -- :name entry_by_id :one
-SELECT * FROM entries
+SELECT id, title, community, username, datePosted FROM entries
 WHERE id = :id;
