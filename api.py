@@ -55,7 +55,10 @@ def get_community_recent(community, numOfEntries):
     return myList[:numOfEntries]
 
 #
-# TODO: modify sql query to return most recent
+# TODO:
+#   Modify sql query to return most recent
+#   When retrieving lists of posts, do not include the text
+#         or resource URL for the post.
 #
 
 # GET n most recent entries, all communities
@@ -63,10 +66,6 @@ def get_community_recent(community, numOfEntries):
 def get_all_recent(numOfEntries):
     myList = all_entries()
     return myList[:numOfEntries]
-
-#
-# TODO: modify sql query to return most recent
-#
 
 # Create a new entry
 def create_entry(entry):
