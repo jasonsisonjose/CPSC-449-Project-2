@@ -1,4 +1,4 @@
-# CPSC 449 Back End Engineering
+# CPSC 449 Back End Engineering Project 1
 ## Nicholas Webster, Jason, Gilbert
 
 ### List all entries

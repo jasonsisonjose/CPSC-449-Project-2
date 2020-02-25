@@ -19,10 +19,6 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return "<h1>404</h1><p>The entry could not be found.</p>", 404
-
 # Home page
 @app.route('/', methods=['GET'])
 def home():
@@ -35,7 +31,7 @@ def all_entries():
     return list(all_entries)
 
 # Retrieve an entry given a unique id
-@app.route('/api/v1/entries/<int:id>', methods=['GET'])
+@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
 def entry(id):
     entry = queries.entry_by_id(id=id)
     if entry:
@@ -84,3 +80,7 @@ def filter_entries(query_parameters):
     results = queries._engine.execute(query, to_filter).fetchall()
 
     return list(map(dict, results))
+
+# Delete an entry
+def delete_entry(entry):
+    queries.delete_entry(**entry)
