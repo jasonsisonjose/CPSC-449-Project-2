@@ -39,7 +39,7 @@
 
 
 
-### Post an entry
+## Post an entry
 **Definition**
 
 `POST /api/v1/entries`
