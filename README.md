@@ -18,14 +18,18 @@
 
 ### List all entries
 **Definition**
+
 `GET /api/v1/entries/all`
 
 **Response**
 - `200 OK` on success
 
 
+
+
 ### Retrieve an entry
 **Definition**
+
 `GET /api/v1/entries/<int:id>`
 
 **Response**
@@ -34,17 +38,22 @@
 
 
 
+
 ### Post an entry
 **Definition**
+
 `POST /api/v1/entries`
 
 **Response**
 - `201 CREATED` on success
-- `409 CONFLICT` if id already exists
+- `409 CONFLICT` if ID already exists
+
+
 
 
 ### Delete an entry
 **Definition**
+
 `DELETE /api/v1/entries/<int:id>`
 
 **Response**
