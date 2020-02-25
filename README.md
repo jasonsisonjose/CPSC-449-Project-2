@@ -11,7 +11,7 @@
     "community": "community",
     "url": "www.url.com",
     "username": "username",
-    "date": "YYYY-MM-DDTHH:MM:SS"
+    "date": "YYYY-MM-DD HH:MM:SS"
   }
 ]
 ```

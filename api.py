@@ -4,6 +4,12 @@ from flask import request
 from flask_api import status, exceptions
 import pugsql
 
+#
+# TODO:
+#   When retrieving lists of posts, do not include the text
+#         or resource URL for the post.
+#
+
 # Create instance of Flask
 app = flask_api.FlaskAPI(__name__)
 app.config.from_envvar('APP_CONFIG')
@@ -50,22 +56,16 @@ def entries():
 # GET n most recent entries, specific community
 @app.route('/api/v1/entries/<string:community>/recent/<int:numOfEntries>', methods=['GET'])
 def get_community_recent(community, numOfEntries):
-    community_entries = queries.entry_by_community(community=community)
+    community_entries = queries.entry_by_community(community=community, numOfEntries=numOfEntries)
     myList = list(community_entries)
-    return myList[:numOfEntries]
-
-#
-# TODO:
-#   Modify sql query to return most recent
-#   When retrieving lists of posts, do not include the text
-#         or resource URL for the post.
-#
+    return myList
 
 # GET n most recent entries, all communities
 @app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
 def get_all_recent(numOfEntries):
-    myList = all_entries()
-    return myList[:numOfEntries]
+    all_entries = queries.all_entries_ordered(numOfEntries=numOfEntries)
+    myList = list(all_entries)
+    return myList
 
 # Create a new entry
 def create_entry(entry):
