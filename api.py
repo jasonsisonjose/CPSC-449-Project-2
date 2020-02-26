@@ -22,7 +22,9 @@ def init_db():
 # Home page
 @app.route('/', methods=['GET'])
 def home():
-    return 'Welcome to Nic\'s localhost'
+    #return 'Welcome to Nic\'s localhost'
+    return '''<h1>Welcome to Fake Reddit!</h1>
+            <h2>Yeet</h2>'''
 
 # List all entries
 @app.route('/api/v1/entries/all', methods=['GET'])
@@ -31,7 +33,7 @@ def all_entries():
     return list(all_entries)
 
 # GET/DELETE/PUT given an id
-@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE','PUT'])
+@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
 def entry(id):
     if request.method == 'GET':
         return get_entry_with_id(id)
@@ -61,12 +63,30 @@ def get_all_recent(numOfEntries):
     myList = list(all_entries)
     return myList
 
-# GET n top-scoring posts, all communities
+# GET n top-scoring entries, all communities
 @app.route('/api/v1/entries/all/top/<int:numOfEntries>', methods=['GET'])
 def get_top_scoring(numOfEntries):
     top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
     myList = list(top_entries)
     return myList 
+
+# Upvote an entry
+@app.route('/api/v1/entries/<int:id>/upvote', methods=['GET'])
+def up_vote(id):
+    up_vote_entry = queries.up_vote_entry(id=id)
+    if up_vote_entry:
+        return get_entry_with_id(id)
+    else:
+        return { 'message': f'Entry with id {id} can\'t be upvoted' }, status.HTTP_400_BAD_REQUEST
+
+# Downvote an entry
+@app.route('/api/v1/entries/<int:id>/downvote', methods=['GET'])
+def down_vote(id):
+    down_vote_entry = queries.down_vote_entry(id=id)
+    if down_vote_entry:
+        return get_entry_with_id(id)
+    else:
+        return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
 
 # Create a new entry
 def create_entry(entry):
@@ -109,3 +129,5 @@ def get_entry_with_id(id):
         return entry
     else:
         raise exceptions.NotFound()
+
+
