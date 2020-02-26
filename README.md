@@ -79,4 +79,15 @@
 `GET /api/v1/entries/all/recent/<int:numOfEntries>`
 
 **Response**
-- `200 OK` on success  
+- `200 OK` on success
+<p>&nbsp;</p>
+
+
+
+## List the n top-scoring posts to any community
+**Definition**
+
+`GET /api/v1/entries/all/top/<int:numOfEntries>`
+
+**Response**
+- `200 OK` on success
