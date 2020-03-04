@@ -4,12 +4,28 @@ from flask import request
 from flask_api import status, exceptions
 import pugsql
 
+# Custom Converter
+from werkzeug.routing import BaseConverter
+
+# Custom Class to use "list" variable in URL converter
+class ListConverter(BaseConverter):
+
+    def to_python(self,value):
+        return value.split('+')
+    
+    def to_url(self,values):
+        return '+'.join(BaseConverter.to_url(value) for value in values)
+
+
 # Create instance of Flask
 app = flask_api.FlaskAPI(__name__)
 app.config.from_envvar('APP_CONFIG')
 
 queries = pugsql.module('queries/')
 queries.connect(app.config['DATABASE_URL'])
+
+# Custom converter for grabbing a list of post identifiers
+app.url_map.converters['list'] = ListConverter
 
 @app.cli.command('init')
 def init_db():
@@ -32,7 +48,7 @@ def all_entries():
     all_entries = queries.all_entries()
     return list(all_entries)
 
-# GET/DELETE/PUT given an id
+# GET/DELETE given an id
 @app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
 def entry(id):
     if request.method == 'GET':
@@ -87,6 +103,15 @@ def down_vote(id):
         return get_entry_with_id(id)
     else:
         return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
+
+# Given a list of post identifiers, return the list sorted by score
+@app.route('/api/v1/entries/scorelist/<list:id>', methods=['GET'])
+def score_list(id):
+    entries_by_list = queries.entries_by_list(id=id)
+    if entries_by_list:
+        return list(entries_by_list)
+    else:
+       return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST 
 
 # Create a new entry
 def create_entry(entry):

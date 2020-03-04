@@ -91,3 +91,18 @@
 
 **Response**
 - `200 OK` on success
+<p>&nbsp;</p>
+
+
+
+## Given a list of post identifiers, return the list sorted by score
+**Definition**
+
+`GET /api/v1/entries/all/recent/<list:id>`
+
+**Example**
+
+`/api/v1/entries/scorelist/1+3+2`
+
+**Response**
+- `200 OK` on success
