@@ -43,13 +43,15 @@ def home():
     return '''<h1>Welcome to Fake Reddit!</h1>
             <h2>Yeet</h2>'''
 
+# ---- Posting Microservice ----
+
 # List all entries
 @app.route('/api/v1/entries/all', methods=['GET'])
 def all_entries():
     all_entries = queries.all_entries()
     return list(all_entries)
 
-# GET/DELETE given an id
+# GET/DELETE given an id (also shows upvotes and downvotes)
 @app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
 def entry(id):
     if request.method == 'GET':
@@ -80,15 +82,17 @@ def get_all_recent(numOfEntries):
     myList = list(all_entries)
     return myList
 
+# ---- Voting Microservice ----
+
 # GET n top-scoring entries, all communities
-@app.route('/api/v1/entries/all/top/<int:numOfEntries>', methods=['GET'])
+@app.route('/api/v1/votes/top/<int:numOfEntries>', methods=['GET'])
 def get_top_scoring(numOfEntries):
     top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
     myList = list(top_entries)
     return myList 
 
 # Upvote an entry
-@app.route('/api/v1/entries/<int:id>/upvote', methods=['GET'])
+@app.route('/api/v1/votes/<int:id>/upvote', methods=['GET'])
 def up_vote(id):
     up_vote_entry = queries.up_vote_entry(id=id)
     if up_vote_entry:
@@ -97,7 +101,7 @@ def up_vote(id):
         return { 'message': f'Entry with id {id} can\'t be upvoted' }, status.HTTP_400_BAD_REQUEST
 
 # Downvote an entry
-@app.route('/api/v1/entries/<int:id>/downvote', methods=['GET'])
+@app.route('/api/v1/votes/<int:id>/downvote', methods=['GET'])
 def down_vote(id):
     down_vote_entry = queries.down_vote_entry(id=id)
     if down_vote_entry:
@@ -106,9 +110,9 @@ def down_vote(id):
         return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
 
 # Given a list of post identifiers, return the list sorted by score
-@app.route('/api/v1/entries/scorelist/<list:id>', methods=['GET'])
-def score_list(id):
-    entries_by_list = queries.entries_by_list(id=id)
+@app.route('/api/v1/votes/scorelist/<list:identifiers>', methods=['GET'])
+def score_list(identifiers):
+    entries_by_list = queries.entries_by_list(identifiers=identifiers)
     if entries_by_list:
         return list(entries_by_list)
     else:
