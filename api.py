@@ -10,11 +10,12 @@ from werkzeug.routing import BaseConverter
 # Custom Class to use "list" variable in URL converter
 class ListConverter(BaseConverter):
 
-    def to_python(self,value):
+    def to_python(self, value):
         return value.split('+')
     
-    def to_url(self,values):
-        return '+'.join(BaseConverter.to_url(value) for value in values)
+    def to_url(self, values):
+        return '+'.join(super(ListConverter,self).to_url(value) 
+                            for value in values)
 
 
 # Create instance of Flask
