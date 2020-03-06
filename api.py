@@ -4,6 +4,11 @@ from flask import request
 from flask_api import status, exceptions
 import pugsql
 
+# Import the dotenv to load variables from the environment
+# to run Flask using Foreman
+from dotenv import load_dotenv
+load_dotenv()
+
 # Custom Converter
 from werkzeug.routing import BaseConverter
 
@@ -12,13 +17,13 @@ class ListConverter(BaseConverter):
 
     def to_python(self, value):
         return value.split('+')
-    
+
     def to_url(self, values):
-        return '+'.join(super(ListConverter,self).to_url(value) 
+        return '+'.join(super(ListConverter,self).to_url(value)
                             for value in values)
 
 
-# Create instance of Flask
+# Create instance of Flask using the Flask API
 app = flask_api.FlaskAPI(__name__)
 app.config.from_envvar('APP_CONFIG')
 
@@ -58,7 +63,7 @@ def entry(id):
         return get_entry_with_id(id)
     elif request.method == 'DELETE':
         queries.delete_entry(id=id)
-        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK  
+        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
 
 # General GET/POST
 @app.route('/api/v1/entries', methods=['GET','POST'])
@@ -89,7 +94,7 @@ def get_all_recent(numOfEntries):
 def get_top_scoring(numOfEntries):
     top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
     myList = list(top_entries)
-    return myList 
+    return myList
 
 # Upvote an entry
 @app.route('/api/v1/votes/<int:id>/upvote', methods=['GET'])
@@ -116,7 +121,7 @@ def score_list(identifiers):
     if entries_by_list:
         return list(entries_by_list)
     else:
-       return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST 
+       return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST
 
 # Create a new entry
 def create_entry(entry):
@@ -159,5 +164,3 @@ def get_entry_with_id(id):
         return entry
     else:
         raise exceptions.NotFound()
-
-
