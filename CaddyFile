@@ -1,2 +1,0 @@
-proxy /localhost:2015/post localhost:8000/api/v1/entries/all
-proxy /localhost:2015/votes localhost:8000/api/v1/entries/all/recent/<int:numOfEntries>
