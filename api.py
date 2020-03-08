@@ -98,23 +98,26 @@ def get_top_scoring(numOfEntries):
     return myList
 
 
-# Upvote an entry
-@app.route('/api/v1/votes/<int:id>/upvote', methods=['GET'])
-def up_vote(id):
-    up_vote_entry = queries.up_vote_entry(id=id)
-    if up_vote_entry:
-        return get_entry_with_id(id)
-    else:
-        return { 'message': f'Entry with id {id} can\'t be upvoted' }, status.HTTP_400_BAD_REQUEST
-
-# Downvote an entry
-@app.route('/api/v1/votes/<int:id>/downvote', methods=['GET'])
-def down_vote(id):
-    down_vote_entry = queries.down_vote_entry(id=id)
-    if down_vote_entry:
-        return get_entry_with_id(id)
-    else:
-        return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
+# Report an entry's number of upvotes/downvotes, upvote or downvote the entry
+@app.route('/api/v1/votes/<int:id>', methods=['GET', 'PUT', 'PATCH'])
+def report_votes(id):
+    if request.method == 'GET':
+        report_votes = queries.report_votes(id=id)
+        return report_votes
+    # using PUT method to upvote entry
+    elif request.method == 'PUT':
+        up_vote_entry = queries.up_vote_entry(id=id)
+        if up_vote_entry:
+            return { 'message': f'Entry with id {id} has been upvoted' }, status.HTTP_200_OK
+        else:
+            return { 'message': f'Entry with id {id} can\'t be upvoted' }, status.HTTP_400_BAD_REQUEST
+    # using PATCH method to downvote entry
+    elif request.method == 'PATCH':
+        down_vote_entry = queries.down_vote_entry(id=id)
+        if down_vote_entry:
+             return { 'message': f'Entry with id {id} has been downvoted' }, status.HTTP_200_OK
+        else:
+            return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
 
 # Given a list of post identifiers, return the list sorted by score
 @app.route('/api/v1/votes/scorelist/<list:identifiers>', methods=['GET'])

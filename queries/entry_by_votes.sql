@@ -1,4 +1,4 @@
 -- :name entry_by_votes :many
-SELECT id, title, community, username, datePosted, upVotes, downVotes FROM entries
+SELECT id, upVotes, downVotes FROM votes
 ORDER BY upVotes - downVotes DESC
 LIMIT :numOfEntries;
