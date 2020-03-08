@@ -84,7 +84,7 @@ def get_community_recent(community, numOfEntries):
 # GET n most recent entries, all communities
 @app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
 def get_all_recent(numOfEntries):
-    all_entries = queries.all_entries_ordered(numOfEntries=numOfEntries)
+    all_entries = queries.all_entries_sorted(numOfEntries=numOfEntries)
     myList = list(all_entries)
     return myList
 
@@ -120,9 +120,9 @@ def report_votes(id):
             return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
 
 # Given a list of post identifiers, return the list sorted by score
-@app.route('/api/v1/votes/scorelist/<list:identifiers>', methods=['GET'])
-def score_list(identifiers):
-    entries_by_list = queries.entries_by_list(identifiers=identifiers)
+@app.route('/api/v1/votes/scorelist', methods=['POST'])
+def score_list():
+    entries_by_list = queries.entries_by_list(request.data)
     if entries_by_list:
         return list(entries_by_list)
     else:
