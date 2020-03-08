@@ -82,7 +82,8 @@ def down_vote(id):
 def score_list():
     entries_by_list = queries.entries_by_list(request.data)
     if entries_by_list:
-        return list(entries_by_list)
+        myList = list(entries_by_list)
+        return myList
     else:
        return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST
 
