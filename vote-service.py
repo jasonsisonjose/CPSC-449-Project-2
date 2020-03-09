@@ -81,9 +81,11 @@ def report_votes(id):
             return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
 
 # Given a list of post identifiers, return the list sorted by score
-@app.route('/api/v1/votes/scorelist/<list:identifiers>', methods=['GET'])
-def score_list(identifiers):
-    entries_by_list = queries.entries_by_list(identifiers=identifiers)
+@app.route('/api/v1/votes/scorelist', methods=['POST'])
+def score_list():
+    #entries_by_list = queries.entries_by_list(request.data)
+    idList = request.json['id']
+    entries_by_list = queries.entries_by_list(idList=idList)
     if entries_by_list:
         return list(entries_by_list)
     else:
