@@ -19,6 +19,17 @@
 ]
 ```
 
+### All votes have the form
+```json
+[
+  {
+    "id": "####",
+    "upVotes": "upVotes",
+    "downVotes": "downVotes"
+  }
+]
+```
+
 ## List all entries
 **Definition**
 
@@ -86,26 +97,60 @@
 <p>&nbsp;</p>
 
 
-
-## List the n top-scoring posts to any community
+## Report the number of upvotes/downvotes for a post
 **Definition**
 
-`GET /api/v1/entries/all/top/<int:numOfEntries>`
+`GET /api/v1/votes/<int:id>`
 
 **Response**
 - `200 OK` on success
 <p>&nbsp;</p>
 
 
+## Upvote a post
+**Definition**
+
+`PUT /api/v1/votes/<int:id>`
+
+**Example**
+`curl --verbose --request PUT http://localhost:5000/api/v1/votes/1`
+
+**Response**
+- `200 OK` on success
+<p>&nbsp;</p>
+
+
+## Downvote a post
+**Definition**
+
+`PATCH /api/v1/votes/<int:id>`
+
+**Example**
+`curl --verbose --request PATCH http://localhost:5000/api/v1/votes/1`
+
+**Response**
+- `200 OK` on success
+<p>&nbsp;</p>
+
+
+## List the n top-scoring posts to any community
+**Definition**
+
+`GET /api/v1/votes/top/<int:numOfEntries>`
+
+**Response**
+- `200 OK` on success
+<p>&nbsp;</p>
+
 
 ## Given a list of post identifiers, return the list sorted by score
 **Definition**
 
-`GET /api/v1/entries/all/recent/<list:id>`
+`POST /api/v1/votes/scorelist`
 
 **Example**
 
-`/api/v1/entries/scorelist/1+3+2`
+`curl --verbose --request POST --header 'Content-Type: application/json' --data '{"id":[1,2,3]}' http://localhost:5100/api/v1/votes/scorelist`
 
 **Response**
 - `200 OK` on success
