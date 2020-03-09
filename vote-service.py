@@ -64,7 +64,11 @@ def get_top_scoring(numOfEntries):
 def report_votes(id):
     if request.method == 'GET':
         report_votes = queries.report_votes(id=id)
-        return report_votes
+        if report_votes:
+            return report_votes
+        else:
+            return { 'message': f'Entry with id {id} does not exist' }, status.HTTP_404_NOT_FOUND
+
     # using PUT method to upvote entry
     elif request.method == 'PUT':
         up_vote_entry = queries.up_vote_entry(id=id)
@@ -72,6 +76,7 @@ def report_votes(id):
             return { 'message': f'Entry with id {id} has been upvoted' }, status.HTTP_200_OK
         else:
             return { 'message': f'Entry with id {id} can\'t be upvoted' }, status.HTTP_400_BAD_REQUEST
+            
     # using PATCH method to downvote entry
     elif request.method == 'PATCH':
         down_vote_entry = queries.down_vote_entry(id=id)
