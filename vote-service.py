@@ -10,20 +10,6 @@ import pugsql
 from dotenv import load_dotenv
 load_dotenv()
 
-# Custom Converter
-from werkzeug.routing import BaseConverter
-
-# Custom Class to use "list" variable in URL converter
-class ListConverter(BaseConverter):
-
-    def to_python(self, value):
-        return value.split('+')
-
-    def to_url(self, values):
-        return '+'.join(super(ListConverter,self).to_url(value)
-                            for value in values)
-
-
 # Create instance of Flask using the Flask API
 app = flask_api.FlaskAPI(__name__)
 app.config.from_envvar('APP_CONFIG')
@@ -31,8 +17,6 @@ app.config.from_envvar('APP_CONFIG')
 queries = pugsql.module('queries/')
 queries.connect(app.config['DATABASE_URL'])
 
-# Custom converter for grabbing a list of post identifiers
-app.url_map.converters['list'] = ListConverter
 
 @app.cli.command('init')
 def init_db():
@@ -46,8 +30,7 @@ def init_db():
 @app.route('/', methods=['GET'])
 def home():
     #return 'Welcome to Nic\'s localhost'
-    return '''<h1>Welcome to Fake Reddit!</h1>
-            <h2>Yeet</h2>'''
+    return '''<h1>Welcome to Fake Reddit!</h1>'''
 
 
 # ---- Voting Microservice ----
