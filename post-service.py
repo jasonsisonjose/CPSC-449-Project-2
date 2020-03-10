@@ -68,7 +68,7 @@ def get_community_recent(community, numOfEntries):
 # GET n most recent entries, all communities
 @app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
 def get_all_recent(numOfEntries):
-    all_entries = queries.all_entries_ordered(numOfEntries=numOfEntries)
+    all_entries = queries.all_entries_sorted(numOfEntries=numOfEntries)
     myList = list(all_entries)
     return myList
 
