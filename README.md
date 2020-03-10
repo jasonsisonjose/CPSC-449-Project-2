@@ -113,7 +113,7 @@
 `PUT /api/v1/votes/<int:id>`
 
 **Example**
-`curl --verbose --request PUT http://localhost:5000/api/v1/votes/1`
+`curl --verbose --request PUT http://localhost:5100/api/v1/votes/1`
 
 **Response**
 - `200 OK` on success
@@ -126,7 +126,7 @@
 `PATCH /api/v1/votes/<int:id>`
 
 **Example**
-`curl --verbose --request PATCH http://localhost:5000/api/v1/votes/1`
+`curl --verbose --request PATCH http://localhost:5100/api/v1/votes/1`
 
 **Response**
 - `200 OK` on success
