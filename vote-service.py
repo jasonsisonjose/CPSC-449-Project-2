@@ -4,7 +4,6 @@ from flask import request
 from flask_api import status, exceptions
 import pugsql
 
-# ---- CHANGE!!! ---- #
 # Import the dotenv to load variables from the environment
 # to run Flask using Foreman
 from dotenv import load_dotenv
