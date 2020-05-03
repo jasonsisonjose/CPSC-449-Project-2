@@ -47,7 +47,7 @@ def entry(id):
         return get_entry_with_id(id)
     elif request.method == 'DELETE':
         queries.delete_entry(id=id)
-        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
+        return { 'message': 'Deleted post with id {id}' }, status.HTTP_200_OK
 
 # General GET/POST
 @app.route('/api/v1/entries', methods=['GET','POST'])
@@ -86,7 +86,7 @@ def create_entry(entry):
         return { 'error': str(e) }, status.HTTP_409_CONFLICT
 
     return entry, status.HTTP_201_CREATED, {
-        'Location': f'/api/v1/entries/{entry["id"]}'
+        'Location': '/api/v1/entries/{entry["id"]}'
     }
 
 # Filter entries given user input
