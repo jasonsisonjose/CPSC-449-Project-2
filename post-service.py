@@ -143,8 +143,7 @@ def Get_Entry(tableName, dynamoDbResource, entryID):
         getEntry = myTable.get_item(
             Key = {'EntryID':entryID}
         )
-        entry = get_entry['Item']
-        return entry
+        return getEntry['Item']
     except:
         print('Entry does not exist')
 
@@ -165,7 +164,7 @@ def Get_All_Entries(tableName, dynamoDbResource):
 def Get_n_Recent_Entries(tableName, dynamoDbResource, n):
     allEntries = Get_All_Entries(tableName, dynamoDbResource)
 
-    tableLength = tableLength(tableName, dynamoDbResource)
+    tableLength = Table_Size(tableName, dynamoDbResource)
     run = tableLength - 1
     nRecentEntries = []
 
@@ -186,7 +185,7 @@ def Get_n_Recent_Entries(tableName, dynamoDbResource, n):
 def Get_n_Recent_Entries_by_Community(tableName, dynamoDbResource, n, community):
     
     allEntries = Get_All_Entries(tableName, dynamoDbResource)
-    tableLength = tableLength(tableName, dynamoDbResource)
+    tableLength = Table_Size(tableName, dynamoDbResource)
     run = tableLength - 1
     nRecentEntriesByCommunity = []
 
