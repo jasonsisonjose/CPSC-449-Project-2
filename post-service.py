@@ -22,8 +22,8 @@ def home():
 # List all entries
 @app.route('/api/v1/entries/all', methods=['GET'])
 def all_entries():
-    all_entries = Get_All_Entries('entries', dynamoDbResource)
-    return list(all_entries)
+    allEntries = Get_All_Entries('entries', dynamoDbResource)
+    return list(allEntries)
 
 # GET/DELETE given an id (also shows upvotes and downvotes)
 @app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
@@ -86,12 +86,11 @@ def Create_Table(tableName, dynamoDbClient, dynamoDbResource):
     dynamoDbResource.meta.client.get_waiter('table_exists').wait(TableName=tableName)
 
 def Delete_Table(tableName, dynamoDbResource):
-    delTable = dynamoDbResource.Table(tableName)
-    delTable.delete()
+    myTable = dynamoDbResource.Table(tableName)
+    myTable.delete()
 
 def List_All_Tables(dynamoDbClient):
-    existingTables = dynamoDbClient.list_tables()['TableNames']
-    return existingTables
+    return dynamoDbClient.list_tables()['TableNames'] 
 
 def Search_Table (tableName, dynamoDbResource):
     allEntries = []
@@ -108,8 +107,7 @@ def Search_Table (tableName, dynamoDbResource):
 
 def Table_Size(tableName, dynamoDbResource):
     myTable = dynamoDbResource.Table(tableName)
-    tableSize = myTable.item_count
-    return tableSize
+    return myTable.item_count
 
 def Create_Entry(tableName, dynamoDbResource, username, entryTitle, content, community, url):
     tableLength = tableLength(tableName, dynamoDbResource)
