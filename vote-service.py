@@ -44,7 +44,7 @@ r_server.hset(3, "score", int(r_server.hget(3,"upvotes")) - int(r_server.hget(3,
 # ---- Home page ----
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>Welcome to Fake Reddit!</h1>'''
+    return '''<h1>Welcome to Fake Reddit Voting Service!</h1>'''
 
 
 # ---- Voting Microservice ----
