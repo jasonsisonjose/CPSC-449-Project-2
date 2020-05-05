@@ -33,15 +33,24 @@ r_server = Redis(app)
 #        db.commit()
 
 
-# ---- Create Keys/Data for Votes Table ----
+# Create a Votes Set
+r_server.sadd("votes",0,1,2)
+
+# ---- Create Keys/Data for Votes Set ----
+r_server.hset(0,"id",0)
 r_server.hset(0,"upvotes",1)
 r_server.hset(0,"downvotes",2)
+r_server.hset(0, "score", int(r_server.hget(0,"upvotes")) - int(r_server.hget(0,"downvotes")))
 
-r_server.hset(1,"upvotes",69)
-r_server.hset(1,"downvotes",7)
+r_server.hset(1,"id",1)
+r_server.hset(1,"upvotes",420)
+r_server.hset(1,"downvotes",4)
+r_server.hset(1, "score", int(r_server.hget(1,"upvotes")) - int(r_server.hget(1,"downvotes")))
 
-r_server.hset(2,"upvotes",420)
-r_server.hset(2,"downvotes",4)
+r_server.hset(2,"id",2)
+r_server.hset(2,"upvotes",69)
+r_server.hset(2,"downvotes",7)
+r_server.hset(2, "score", int(r_server.hget(2,"upvotes")) - int(r_server.hget(2,"downvotes")))
 
 
 # Home page
@@ -55,18 +64,31 @@ def home():
 # GET n top-scoring entries, all communities
 @app.route('/api/v1/votes/top/<int:numOfEntries>', methods=['GET'])
 def get_top_scoring(numOfEntries):
-    top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
-    myList = list(top_entries)
-    return myList
+    #top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
+
+    # check if numOfEntries is larger than the number of keys in the Set
+    if (numOfEntries > r_server.scard("votes")):
+        return { 'message': 'Not enough entries to fulfill request' }, status.HTTP_400_BAD_REQUEST
+
+    # otherwise sort the set by score and display it
+    else:
+        list = r_server.sort("votes",by="*->score",desc=True)
+        myList = []
+        for i in range(numOfEntries):
+            num = int(list[i])
+            myList.append(r_server.hgetall(num))
+
+        return myList
 
 # Report an entry's number of upvotes/downvotes, upvote or downvote the entry
 @app.route('/api/v1/votes/<int:id>', methods=['GET', 'PUT', 'PATCH'])
 def report_votes(id):
     if request.method == 'GET':
         #report_votes = queries.report_votes(id=id)
-        report_votes = r_server.hmget(id,"upvotes","downvotes")
+        # check if the hash field with the entry id exists
+        report_votes = r_server.hexists(id,"upvotes")
         if report_votes:
-            return report_votes
+            return r_server.hgetall(id)
         else:
             return { 'message': f'Entry with id {id} does not exist' }, status.HTTP_404_NOT_FOUND
 
@@ -88,6 +110,7 @@ def report_votes(id):
         else:
             return { 'message': f'Entry with id {id} can\'t be downvoted' }, status.HTTP_400_BAD_REQUEST
 
+
 # Given a list of post identifiers, return the list sorted by score
 @app.route('/api/v1/votes/scorelist', methods=['POST'])
 def score_list():
@@ -99,11 +122,17 @@ def score_list():
     else:
        return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST
 
+
+
+
+
 # Upvote an entry
 def upvoteEntry(redisCL, id):
     hash_check = redisCL.hexists(id,"upvotes")
     if hash_check:
         redisCL.hincrby(id,"upvotes",1)
+        # keep score updated
+        redisCL.hincrby(id,"score",1)
         return hash_check
     else:
         raise exceptions.NotFound()
@@ -114,6 +143,8 @@ def downvoteEntry(redisCL, id):
     hash_check = redisCL.hexists(id,"downvotes")
     if hash_check:
         redisCL.hincrby(id,"downvotes",1)
+        #keep score updated
+        redisCL.hincrby(id,"score",-1)
         return hash_check
     else:
         raise exceptions.NotFound()
