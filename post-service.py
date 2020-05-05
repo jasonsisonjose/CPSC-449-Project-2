@@ -65,31 +65,24 @@ def get_all_recent(numOfEntries):
 ############################# POSTING Microservice #############################
 def Create_Table(tableName, dynamoDbClient, dynamoDbResource):
     myTable = dynamoDbClient.create_table(
-            
         TableName = tableName,
-
         AttributeDefinitions=[
             {
                 'AttributeName': 'EntryID',
                 'AttributeType': 'N'
             }                        
-        ],
-
+        ]
         KeySchema=[
             {
                 'AttributeName': 'EntryID',
                 'KeyType': 'HASH'
-
-            },
-        ],      #End KeySchema
-
+            }
+        ]
         ProvisionedThroughput = {
             'ReadCapacityUnits': 100,
             'WriteCapacityUnits': 100,
         }
     )
-
-    # Wait until the table exists.
     dynamoDbResource.meta.client.get_waiter('table_exists').wait(TableName=tableName)
 
 def Delete_Table(tableName, dynamoDbResource):
@@ -118,23 +111,20 @@ def Table_Size(tableName, dynamoDbResource):
     tableSize = myTable.item_count
     return tableSize
 
-def Create_Entry (tableName, dynamoDbResource, username, entryTitle, content, community, url):
+def Create_Entry(tableName, dynamoDbResource, username, entryTitle, content, community, url):
     tableLength = tableLength(tableName, dynamoDbResource)
     if tableLength == 0:
         last_EntryID = 0
     else:
         allEntries = Get_All_Entries(tableName, dynamoDbResource)
         last_EntryID = 1
-
         for entry in allEntries:
             if entry['EntryID']> last_EntryID:
                 last_EntryID = entry['EntryID']
-
+         
     currentID = last_EntryID + 1
-
     currentDateTime = datetime.datetime.now()
     currentDateTimeStr = str(currentDateTime)
-
     input_json = {
         'EntryID'     : currentID, 
         'Username'    : username,
@@ -144,23 +134,20 @@ def Create_Entry (tableName, dynamoDbResource, username, entryTitle, content, co
         'Community'   : community,
         'url'         : url
     }
-
     myTable = dynamoDbResource.Table(tableName)
-
     myTable.put_item(Item = input_json)
     return input_json
 
 def Get_Entry(tableName, dynamoDbResource, entryID):
     try:
         myTable = dynamoDbResource.Table(tableName)
-
-        get_entry = myTable.get_item(
+        getEntry = myTable.get_item(
             Key = {'EntryID':entryID}
         )
         entry = get_entry['Item']
         return entry
     except:
-        print('Entry is not exist')
+        print('Entry does not exist')
 
 def Get_All_Entries(tableName, dynamoDbResource):
     allEntries = []
@@ -181,12 +168,12 @@ def Get_n_Recent_Entries(tableName, dynamoDbResource, n):
 
     tableLength = tableLength(tableName, dynamoDbResource)
     run = tableLength - 1
-    n_recent_Entries = []
+    nRecentEntries = []
 
     i = 0
     while i < n:
         try:
-            n_recent_Entries.append(allEntries[run])
+            nRecentEntries.append(allEntries[run])
             i += 1
             if run > 0:
                 run -= 1
@@ -194,23 +181,21 @@ def Get_n_Recent_Entries(tableName, dynamoDbResource, n):
                 break
         except:
             run -= 1
-
             pass
-    return n_recent_Entries
+    return nRecentEntries
 
 def Get_n_Recent_Entries_by_Community(tableName, dynamoDbResource, n, community):
+    
     allEntries = Get_All_Entries(tableName, dynamoDbResource)
-
     tableLength = tableLength(tableName, dynamoDbResource)
     run = tableLength - 1
-    n_recent_Entries_by_community = []
+    nRecentEntriesByCommunity = []
 
     i = 0
     while i < n:
         try:
             if allEntries[run]['Community'] == community:
-                # print('Community = ', community)
-                n_recent_Entries_by_community.append(allEntries[run])
+                nRecentEntriesByCommunity.append(allEntries[run])
                 i += 1
 
             if run > 0:
@@ -220,15 +205,11 @@ def Get_n_Recent_Entries_by_Community(tableName, dynamoDbResource, n, community)
         except:
             i += 1
             pass
-    # print('n_recent_Entries_by_community = ',n_recent_Entries_by_community)
-    return n_recent_Entries_by_community
+    return nRecentEntriesByCommunity
 
 def Delete_Entry(tableName, dynamoDbResource, entryID):
     myTable = dynamoDbResource.Table(tableName)
-    
-    myTable.delete_item(
-        Key= { 'EntryID':entryID }
-    )
+    myTable.delete_item(Key= {'EntryID':entryID})
 
 def Delete_All_Entries(tableName, dynamoDbResource):
     entryID = 1
@@ -247,7 +228,6 @@ def Create_First_Three_Entries(tableName, dynamoDbResource):
 app = flask_api.FlaskAPI(__name__)
 
 tableName = 'entries'
-
 dynamoDbClient = boto3.client('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
 dynamoDbResource = boto3.resource('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
 
