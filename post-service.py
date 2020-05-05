@@ -2,7 +2,6 @@
 import flask_api
 from flask import request
 from flask_api import status, exceptions
-import pugsql
 
 # Import the dotenv to load variables from the environment
 # to run Flask using Foreman
@@ -247,29 +246,30 @@ def Create_First_Three_Entries(tableName, dynamoDbResource):
 # Create instance of Flask using the Flask API
 app = flask_api.FlaskAPI(__name__)
 
-tableName = "entries"
+tableName = 'entries'
 
 dynamoDbClient = boto3.client('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
 dynamoDbResource = boto3.resource('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
 
 app.config['DYNAMO_TABLES'] = [
-    {
+    dict(
         TableName=tableName,
         KeySchema=[dict(AttributeName='EntryID', KeyType='HASH')],
         AttributeDefinitions=[dict(AttributeName='EntryID', AttributeType='N')],
         ProvisionedThroughput=dict(ReadCapacityUnits=100, WriteCapacityUnits=100)
-    } 
+    ) 
 ]
 
-existingTables = List_All_Tables(dynamoDbClient)
+@app.cli.command('init')
+def init_db():
+    existingTables = List_All_Tables(dynamoDbClient)
 
-if tableName in existingTables:
-    Delete_All_Entries(tableName, dynamoDbResource)
-    Delete_Table(tableName, dynamoDbResource)
+    if tableName in existingTables:
+        Delete_All_Entries(tableName, dynamoDbResource)
+        Delete_Table(tableName, dynamoDbResource)
 
-Create_Table(tableName, dynamoDbClient, dynamoDbResource)
-describeTable = dynamoDbClient.describe_table(TableName=tableName)
-Create_First_Three_Entries(tableName, dynamoDbResource)
+    Create_Table(tableName, dynamoDbClient, dynamoDbResource)
+    Create_First_Three_Entries(tableName, dynamoDbResource)
 ################################################################################
 
 if __name__ == "__main__":
