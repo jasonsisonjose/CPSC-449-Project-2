@@ -12,57 +12,6 @@ import datetime
 from dotenv import load_dotenv
 load_dotenv()
 
-app = flask_api.FlaskAPI(__name__)
-
-################################### ROUTING ####################################
-# Home page
-@app.route('/', methods=['GET'])
-def home():
-    return '''<h1>Welcome to Fake Reddit!</h1>'''
-
-# List all entries
-@app.route('/api/v1/entries/all', methods=['GET'])
-def all_entries():
-    allEntries = Get_All_Entries('entries', dynamoDbResource)
-    return list(allEntries)
-
-# GET/DELETE given an id (also shows upvotes and downvotes)
-@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
-def entry(id):
-    if request.method == 'GET':
-        return Get_Entry('entries', dynamoDbResource, id)
-    elif request.method == 'DELETE':
-        Delete_Entry('entries', dynamoDbResource, id)
-        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
-
-# General GET/POST
-@app.route('/api/v1/entries', methods=['GET','POST'])
-def entries():
-    if request.method == 'GET':
-        num = int(request.args.get('n', 2))
-        numRecentEntries = Get_n_Recent_Entries('entries', dynamoDbResource, num)
-        return list(numRecentEntries)
-    elif request.method == 'POST':
-        username    = str(request.data.get('username',''))
-        entryTitle  = str(request.data.get('entryTitle',''))
-        content     = str(request.data.get('content',''))
-        community   = str(request.data.get('community',''))
-        url         = str(request.data.get('url',''))
-        input_json = Create_Entry('entries', dynamoDbResource, username, entryTitle, content, community, url)
-
-# GET n most recent entries, specific community
-@app.route('/api/v1/entries/<string:community>/recent/<int:numOfEntries>', methods=['GET'])
-def get_community_recent(community, numOfEntries):
-    nRecentEntriesInCommunity = Get_n_Recent_Entries_by_Community('entries',dynamoDbResource, numOfEntries, community)
-    return list(nRecentEntriesInCommunity)
-
-# GET n most recent entries, all communities
-@app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
-def get_all_recent(numOfEntries):
-    nRecentEntriesAll = Get_n_Recent_Entries('entries',dynamoDbResource, numOfEntries)
-    return list(nRecentEntriesAll)
-################################################################################
-
 ############################# POSTING Microservice #############################
 def Create_Table(tableName, dynamoDbClient, dynamoDbResource):
     myTable = dynamoDbClient.create_table(
@@ -215,19 +164,31 @@ def Delete_All_Entries(tableName, dynamoDbResource):
         Delete_Entry(tableName, dynamoDbResource, entryID)
         entryID += 1
 
-def Create_First_Three_Entries(tableName, dynamoDbResource):
-    input_json = Create_Entry(tableName, dynamoDbResource, 'username2', '001 post title', 'this is the zeroth content 001', 'dankMemes', 'www.runescape001.com')
-    input_json = Create_Entry(tableName, dynamoDbResource, 'user2', 'title 002 post', 'first contnet 002', 'dankMemes', 'www.csuf002.com')
-    input_json = Create_Entry(tableName, dynamoDbResource, 'name3', 'post title 003', 'second 003 contest', 'notDank', 'www.cpsc449003.com')
-################################################################################
+def Create_First_Thirty_Entries(tableName, dynamoDbResource):
+    for i in range(1,31):
+        i = str(i)
+        username    = 'username' + i
+        postTitle   = 'post title ' + i
+        content     = 'content ' + i
+        community   = 'dankmemes'
+        url         = 'www.url' + i + '.com'
+        input_json = Create_Entry(tableName, dynamoDbResource, username, postTitle, content, community, url)
+        ################################################################################
 
 ############################## Initialize Dynamo ###############################
 # Create instance of Flask using the Flask API
-# app = flask_api.FlaskAPI(__name__)
-
 tableName = 'entries'
 dynamoDbClient = boto3.client('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
 dynamoDbResource = boto3.resource('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+
+def init_db():
+    if tableName in List_All_Tables(dynamoDbClient):
+        Delete_All_Entries(tableName, dynamoDbResource)
+        Delete_Table(tableName, dynamoDbResource)
+    Create_Table(tableName, dynamoDbClient, dynamoDbResource)
+    Create_First_Thirty_Entries(tableName, dynamoDbResource)
+app = flask_api.FlaskAPI(__name__)
+init_db()
 
 app.config['DYNAMO_TABLES'] = [
     dict(
@@ -238,17 +199,53 @@ app.config['DYNAMO_TABLES'] = [
     ) 
 ]
 
-@app.cli.command('init')
-def init_db():
-    existingTables = List_All_Tables(dynamoDbClient)
-
-    if tableName in existingTables:
-        Delete_All_Entries(tableName, dynamoDbResource)
-        Delete_Table(tableName, dynamoDbResource)
-
-    Create_Table(tableName, dynamoDbClient, dynamoDbResource)
-    Create_First_Three_Entries(tableName, dynamoDbResource)
 ################################################################################
 
-if __name__ == "__main__":
-    app.run()
+################################### ROUTING ####################################
+# Home page
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>Welcome to Fake Reddit!</h1>'''
+
+# List all entries
+@app.route('/api/v1/entries/all', methods=['GET'])
+def all_entries():
+    allEntries = Get_All_Entries('entries', dynamoDbResource)
+    return list(allEntries)
+
+# GET/DELETE given an id (also shows upvotes and downvotes)
+@app.route('/api/v1/entries/<int:id>', methods=['GET','DELETE'])
+def entry(id):
+    if request.method == 'GET':
+        return Get_Entry('entries', dynamoDbResource, id)
+    elif request.method == 'DELETE':
+        Delete_Entry('entries', dynamoDbResource, id)
+        return { 'message': f'Deleted post with id {id}' }, status.HTTP_200_OK
+
+# General GET/POST
+@app.route('/api/v1/entries', methods=['GET','POST'])
+def entries():
+    if request.method == 'GET':
+        num = int(request.args.get('n', 2))
+        numRecentEntries = Get_n_Recent_Entries('entries', dynamoDbResource, num)
+        return list(numRecentEntries)
+    elif request.method == 'POST':
+        username    = str(request.data.get('username',''))
+        entryTitle  = str(request.data.get('entryTitle',''))
+        content     = str(request.data.get('content',''))
+        community   = str(request.data.get('community',''))
+        url         = str(request.data.get('url',''))
+        input_json = Create_Entry('entries', dynamoDbResource, username, entryTitle, content, community, url)
+
+# GET n most recent entries, specific community
+@app.route('/api/v1/entries/<string:community>/recent/<int:numOfEntries>', methods=['GET'])
+def get_community_recent(community, numOfEntries):
+    nRecentEntriesInCommunity = Get_n_Recent_Entries_by_Community('entries',dynamoDbResource, numOfEntries, community)
+    return list(nRecentEntriesInCommunity)
+
+# GET n most recent entries, all communities
+@app.route('/api/v1/entries/all/recent/<int:numOfEntries>', methods=['GET'])
+def get_all_recent(numOfEntries):
+    nRecentEntriesAll = Get_n_Recent_Entries('entries',dynamoDbResource, numOfEntries)
+    return list(nRecentEntriesAll)
+################################################################################
