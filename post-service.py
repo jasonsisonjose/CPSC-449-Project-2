@@ -2,23 +2,24 @@
 import flask_api
 from flask import request
 from flask_api import status, exceptions
+from flask_dynamo import Dynamo
+from flask import Flask
+import boto3
+import datetime
 
 # Import the dotenv to load variables from the environment
 # to run Flask using Foreman
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask_dynamo import Dynamo
-from flask import Flask
-import boto3
-import datetime
+app = flask_api.FlaskAPI(__name__)
 
+################################### ROUTING ####################################
 # Home page
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>Welcome to Fake Reddit!</h1>'''
 
-################################### ROUTING ####################################
 # List all entries
 @app.route('/api/v1/entries/all', methods=['GET'])
 def all_entries():
@@ -71,13 +72,13 @@ def Create_Table(tableName, dynamoDbClient, dynamoDbResource):
                 'AttributeName': 'EntryID',
                 'AttributeType': 'N'
             }                        
-        ]
+        ],
         KeySchema=[
             {
                 'AttributeName': 'EntryID',
                 'KeyType': 'HASH'
             }
-        ]
+        ],
         ProvisionedThroughput = {
             'ReadCapacityUnits': 100,
             'WriteCapacityUnits': 100,
@@ -110,7 +111,7 @@ def Table_Size(tableName, dynamoDbResource):
     return myTable.item_count
 
 def Create_Entry(tableName, dynamoDbResource, username, entryTitle, content, community, url):
-    tableLength = tableLength(tableName, dynamoDbResource)
+    tableLength = Table_Size(tableName, dynamoDbResource)
     if tableLength == 0:
         last_EntryID = 0
     else:
@@ -223,7 +224,7 @@ def Create_First_Three_Entries(tableName, dynamoDbResource):
 
 ############################## Initialize Dynamo ###############################
 # Create instance of Flask using the Flask API
-app = flask_api.FlaskAPI(__name__)
+# app = flask_api.FlaskAPI(__name__)
 
 tableName = 'entries'
 dynamoDbClient = boto3.client('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
