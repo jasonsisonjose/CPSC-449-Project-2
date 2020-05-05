@@ -9,51 +9,39 @@ import pugsql
 from dotenv import load_dotenv
 load_dotenv()
 
-# Import Redis
-from flask_redis import Redis
-
+# ---- Import Redis ----
+#from flask_redis import Redis
+import redis
 # ---- Initialize Redis using Flask ----
 app = flask_api.FlaskAPI(__name__)
-app.config['REDIS_HOST'] = 'localhost'
+#app.config['REDIS_HOST'] = 'localhost'
 # default port
-app.config['REDIS_PORT'] = 6379
-app.config['REDIS_DB'] = 0
-r_server = Redis(app)
-#app.config.from_envvar('APP_CONFIG')
+#app.config['REDIS_PORT'] = 6379
+#app.config['REDIS_DB'] = 0
+#r_server = Redis(app)
+r_server = redis.Redis('localhost',decode_responses=True)
 
-#queries = pugsql.module('queries/')
-#queries.connect(app.config['DATABASE_URL'])
-
-
-#def init_db():
-#    with app.app_context():
-#        db = queries._engine.raw_connection()
-#        with app.open_resource('entries.sql', mode='r') as f:
-#            db.cursor().executescript(f.read())
-#        db.commit()
-
-
-# Create a Votes Set
-r_server.sadd("votes",0,1,2)
+# ---- Create a Votes Set ----
+r_server.sadd("votes",1,2,3)
 
 # ---- Create Keys/Data for Votes Set ----
-r_server.hset(0,"id",0)
-r_server.hset(0,"upvotes",1)
-r_server.hset(0,"downvotes",2)
-r_server.hset(0, "score", int(r_server.hget(0,"upvotes")) - int(r_server.hget(0,"downvotes")))
-
 r_server.hset(1,"id",1)
-r_server.hset(1,"upvotes",420)
-r_server.hset(1,"downvotes",4)
+r_server.hset(1,"upvotes",1)
+r_server.hset(1,"downvotes",2)
 r_server.hset(1, "score", int(r_server.hget(1,"upvotes")) - int(r_server.hget(1,"downvotes")))
 
 r_server.hset(2,"id",2)
-r_server.hset(2,"upvotes",69)
-r_server.hset(2,"downvotes",7)
+r_server.hset(2,"upvotes",420)
+r_server.hset(2,"downvotes",4)
 r_server.hset(2, "score", int(r_server.hget(2,"upvotes")) - int(r_server.hget(2,"downvotes")))
 
+r_server.hset(3,"id",3)
+r_server.hset(3,"upvotes",69)
+r_server.hset(3,"downvotes",7)
+r_server.hset(3, "score", int(r_server.hget(3,"upvotes")) - int(r_server.hget(3,"downvotes")))
 
-# Home page
+
+# ---- Home page ----
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>Welcome to Fake Reddit!</h1>'''
@@ -64,7 +52,6 @@ def home():
 # GET n top-scoring entries, all communities
 @app.route('/api/v1/votes/top/<int:numOfEntries>', methods=['GET'])
 def get_top_scoring(numOfEntries):
-    #top_entries = queries.entry_by_votes(numOfEntries=numOfEntries)
 
     # check if numOfEntries is larger than the number of keys in the Set
     if (numOfEntries > r_server.scard("votes")):
@@ -83,8 +70,8 @@ def get_top_scoring(numOfEntries):
 # Report an entry's number of upvotes/downvotes, upvote or downvote the entry
 @app.route('/api/v1/votes/<int:id>', methods=['GET', 'PUT', 'PATCH'])
 def report_votes(id):
+
     if request.method == 'GET':
-        #report_votes = queries.report_votes(id=id)
         # check if the hash field with the entry id exists
         report_votes = r_server.hexists(id,"upvotes")
         if report_votes:
@@ -94,7 +81,6 @@ def report_votes(id):
 
     # using PUT method to upvote entry
     elif request.method == 'PUT':
-        #up_vote_entry = queries.up_vote_entry(id=id)
         up_vote_entry = upvoteEntry(r_server,id)
         if up_vote_entry:
             return { 'message': f'Entry with id {id} has been upvoted' }, status.HTTP_200_OK
@@ -103,7 +89,6 @@ def report_votes(id):
 
     # using PATCH method to downvote entry
     elif request.method == 'PATCH':
-        #down_vote_entry = queries.down_vote_entry(id=id)
         down_vote_entry = downvoteEntry(r_server,id)
         if down_vote_entry:
              return { 'message': f'Entry with id {id} has been downvoted' }, status.HTTP_200_OK
@@ -114,17 +99,29 @@ def report_votes(id):
 # Given a list of post identifiers, return the list sorted by score
 @app.route('/api/v1/votes/scorelist', methods=['POST'])
 def score_list():
-    #entries_by_list = queries.entries_by_list(request.data)
+    # grab the list
     idList = request.json['id']
-    entries_by_list = queries.entries_by_list(idList=idList)
-    if entries_by_list:
-        return list(entries_by_list)
-    else:
-       return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST
+    scoreList = []
+    for i in idList:
+        # check to see if the id exists in the set
+        if(r_server.hexists(i,"upvotes")):
+            scoreList.append(r_server.hgetall(i))
+        else:
+            return { 'message': 'Posts could not be retrieved' }, status.HTTP_400_BAD_REQUEST
+
+    #  before sorting list, we need to change the data type of score to int
+    listLen = len(idList)
+    for x in range(listLen):
+        scoreList[x]["score"] = int(scoreList[x]["score"])
 
 
+    # now we can sort the list
+    newList = sorted(scoreList, key = lambda k: k['score'],reverse=True)
+
+    return newList
 
 
+# ---- Helper Functions ----
 
 # Upvote an entry
 def upvoteEntry(redisCL, id):
@@ -143,17 +140,8 @@ def downvoteEntry(redisCL, id):
     hash_check = redisCL.hexists(id,"downvotes")
     if hash_check:
         redisCL.hincrby(id,"downvotes",1)
-        #keep score updated
+        # keep score updated
         redisCL.hincrby(id,"score",-1)
         return hash_check
-    else:
-        raise exceptions.NotFound()
-
-
-# Return entry given an id
-def get_entry_with_id(id):
-    entry = queries.entry_by_id(id=id)
-    if entry:
-        return entry
     else:
         raise exceptions.NotFound()
