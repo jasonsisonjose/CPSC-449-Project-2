@@ -22,23 +22,40 @@ app = flask_api.FlaskAPI(__name__)
 r_server = redis.Redis('localhost',decode_responses=True)
 
 # ---- Create a Votes Set ----
-r_server.sadd("votes",1,2,3)
+def create_votes_set():
+    for i in range(30):
+        r_server.sadd("votes",i)
 
 # ---- Create Keys/Data for Votes Set ----
-r_server.hset(1,"id",1)
-r_server.hset(1,"upvotes",1)
-r_server.hset(1,"downvotes",2)
-r_server.hset(1, "score", int(r_server.hget(1,"upvotes")) - int(r_server.hget(1,"downvotes")))
 
-r_server.hset(2,"id",2)
-r_server.hset(2,"upvotes",420)
-r_server.hset(2,"downvotes",4)
-r_server.hset(2, "score", int(r_server.hget(2,"upvotes")) - int(r_server.hget(2,"downvotes")))
+# First three vote keys will be unique
+def create_first_three():
+    r_server.hset(1,"id",1)
+    r_server.hset(1,"upvotes",1)
+    r_server.hset(1,"downvotes",2)
+    r_server.hset(1, "score", int(r_server.hget(1,"upvotes")) - int(r_server.hget(1,"downvotes")))
 
-r_server.hset(3,"id",3)
-r_server.hset(3,"upvotes",69)
-r_server.hset(3,"downvotes",7)
-r_server.hset(3, "score", int(r_server.hget(3,"upvotes")) - int(r_server.hget(3,"downvotes")))
+    r_server.hset(2,"id",2)
+    r_server.hset(2,"upvotes",420)
+    r_server.hset(2,"downvotes",4)
+    r_server.hset(2, "score", int(r_server.hget(2,"upvotes")) - int(r_server.hget(2,"downvotes")))
+
+    r_server.hset(3,"id",3)
+    r_server.hset(3,"upvotes",69)
+    r_server.hset(3,"downvotes",7)
+    r_server.hset(3, "score", int(r_server.hget(3,"upvotes")) - int(r_server.hget(3,"downvotes")))
+
+# the rest will be random
+def create_vote_entries():
+    for i in range(4,31):
+        r_server.hset(i,"id",i)
+        r_server.hset(i,"upvotes",i + 1)
+        r_server.hset(i,"downvotes",i)
+        r_server.hset(i, "score", int(r_server.hget(i,"upvotes")) - int(r_server.hget(i,"downvotes")))
+
+create_votes_set()
+create_first_three()
+create_vote_entries()
 
 
 # ---- Home page ----
