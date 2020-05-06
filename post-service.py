@@ -90,8 +90,9 @@ def Get_Entry(tableName, dynamoDbResource, entryID):
     try:
         myTable = dynamoDbResource.Table(tableName)
         getEntry = myTable.get_item(
-            Key = {'EntryID':entryID}
+            Key = {'EntryID':int(entryID)}
         )
+        getEntry['Item']['EntryID'] = int(getEntry['Item']['EntryID'])
         return getEntry['Item']
     except:
         print('Entry does not exist')
@@ -121,6 +122,7 @@ def Get_n_Recent_Entries(tableName, dynamoDbResource, n):
     i = 0
     while i < n:
         try:
+            allEntries[run]['EntryID'] = int(allEntries[run]['EntryID'])
             nRecentEntries.append(allEntries[run])
             i += 1
             if run > 0:
@@ -143,6 +145,7 @@ def Get_n_Recent_Entries_by_Community(tableName, dynamoDbResource, n, community)
     while i < n:
         try:
             if allEntries[run]['Community'] == community:
+                allEntries[run]['EntryID'] = int(allEntries[run]['EntryID'])
                 nRecentEntriesByCommunity.append(allEntries[run])
                 i += 1
 
@@ -206,7 +209,7 @@ app.config['DYNAMO_TABLES'] = [
 # Home page
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>Welcome to Fake Reddit!</h1>'''
+    return '''<h1>Welcome to Fake Reddit Posting Service!</h1>'''
 
 # List all entries
 @app.route('/api/v1/entries/all', methods=['GET'])

@@ -111,7 +111,7 @@ def allTopEntries():
     feedRequestUrl='http://localhost:5200/all/top.rss'
     voteRequestUrl ='http://localhost:5100/api/v1/votes/top/25'
     # We need an item list to keep track of the items in the feed
-    rssFeed = generateAggregatedFeed(feedTitle,feedDescription,feedRequestUrl,voteRequestUrl)
+    rssFeed = generateTopFeed(feedTitle,feedDescription,feedRequestUrl,voteRequestUrl)
     return Response(rssFeed, mimetype='application/rss+xml')
 
 
@@ -134,21 +134,21 @@ def allHottestEntries():
     #For every post, we need the publish date, upvote, and downvote values
     for item in postJsonResponse:
         # Get the post published date
-        print("Date posted: ", item['datePosted'])
-        date = datetime.strptime(item['datePosted'], '%Y-%m-%d %H:%M:%S')
+        print("Date posted: ", item['EntryDate'])
+        date = datetime.strptime(item['EntryDate'], '%Y-%m-%d %H:%M:%S.%f')
         # Get the upvote and downvote number
-        voteRequestUrl = 'http://localhost:5100/api/v1/votes/' + str(item['id'])
+        voteRequestUrl = 'http://localhost:5100/api/v1/votes/' + str(item['EntryID'])
         voteServiceResponse = requests.get(voteRequestUrl)
         voteJsonResponse = voteServiceResponse.json()
 
-        print("Upvotes: ", voteJsonResponse['upVotes'])
-        upVotes = int(voteJsonResponse['upVotes'])
-        print("DownVotes: ", voteJsonResponse['downVotes'])
-        downVotes = int(voteJsonResponse['downVotes'])
+        print("Upvotes: ", voteJsonResponse['upvotes'])
+        upVotes = int(voteJsonResponse['upvotes'])
+        print("DownVotes: ", voteJsonResponse['downvotes'])
+        downVotes = int(voteJsonResponse['downvotes'])
         # Get the ranking score using hot() function
         hotScore = hot(upVotes, downVotes, date)
         hotScoreList.append(hotScore)
-        hotScoreDict[hotScore] = item['id']
+        hotScoreDict[hotScore] = item['EntryID']
 
     hotScoreList.sort(reverse=True)
 
@@ -198,20 +198,20 @@ def generateHotFeed(hotScoreList, hotScoreDict):
         # Because we added our own custom tag: votes, we create the item here
         # We pass in three params: totalVotes, upVotes, downVotes
         votes_item = VotesItem(
-        str(voteJsonResponse['upVotes'] - voteJsonResponse['downVotes']),
-        voteJsonResponse['upVotes'],
-        voteJsonResponse['downVotes'],
+        voteJsonResponse['score'],
+        voteJsonResponse['upvotes'],
+        voteJsonResponse['downvotes'],
         rankingScore
         )
 
         # Create an item based on the post
         tempItem= Item(
-            title=postJsonResponse['title'],
-            author=postJsonResponse['username'],
-            guid=Guid(postJsonResponse['id']),
-            link='http://localhost:5100/api/v1/entries/' + str(postJsonResponse['id']),
-            categories=postJsonResponse['community'],
-            pubDate=datetime.strptime(postJsonResponse['datePosted'], '%Y-%m-%d %H:%M:%S'),
+            title=postJsonResponse['EntryTitle'],
+            author=postJsonResponse['Username'],
+            guid=Guid(postJsonResponse['EntryID']),
+            link='http://localhost:5100/api/v1/entries/' + str(postJsonResponse['EntryID']),
+            categories=postJsonResponse['Community'],
+            pubDate=datetime.strptime(postJsonResponse['EntryDate'], '%Y-%m-%d %H:%M:%S.%f'),
             extensions=[votes_item]
         )
         # Add the item to the feed
@@ -243,7 +243,7 @@ def generateTopFeed(feedTitle, feedDescription, feedRequestUrl, voteRequestUrl='
         postJsonResponse = postServiceResponse.json()
 
         for item in postJsonResponse:
-            postIdList.append(item['id'])
+            postIdList.append(item['EntryID'])
 
         # Send ids to voting
         voteServiceResponse = requests.post(voteRequestUrl, json={'id': postIdList})
@@ -258,16 +258,16 @@ def generateTopFeed(feedTitle, feedDescription, feedRequestUrl, voteRequestUrl='
 
             # Because we added our own custom tag: votes, we create the item here
             # We pass in three params: totalVotes, upVotes, downVotes
-            votes_item = VotesItem(str(item['upVotes'] - item['downVotes']), item['upVotes'], item['downVotes'])
+            votes_item = VotesItem(item['score'], item['upvotes'], item['downvotes'])
 
             # Create an item based on the post
             tempItem= Item(
-                title=postJsonResponse['title'],
-                author=postJsonResponse['username'],
-                guid=Guid(postJsonResponse['id']),
-                link='http://localhost:5100/api/v1/votes/' + str(postJsonResponse['id']),
-                categories=postJsonResponse['community'],
-                pubDate=datetime.strptime(postJsonResponse['datePosted'], '%Y-%m-%d %H:%M:%S'),
+                title=postJsonResponse['EntryTitle'],
+                author=postJsonResponse['Username'],
+                guid=Guid(postJsonResponse['EntryID']),
+                link='http://localhost:5100/api/v1/votes/' + str(postJsonResponse['EntryID']),
+                categories=postJsonResponse['Community'],
+                pubDate=datetime.strptime(postJsonResponse['EntryDate'], '%Y-%m-%d %H:%M:%S.%f'),
                 extensions=[votes_item]
             )
             # Add the item to the feed
@@ -287,7 +287,6 @@ def generateTopFeed(feedTitle, feedDescription, feedRequestUrl, voteRequestUrl='
     elif postRequestUrl == '' and voteRequestUrl != '':
         itemList = []
         # First we need to get the id of the posts that have the top scores
-
         voteServiceResponse = requests.get(voteRequestUrl)
         # We have to make sure that the response is in json format so we can work with it
         voteJsonResponse = voteServiceResponse.json()
@@ -297,23 +296,22 @@ def generateTopFeed(feedTitle, feedDescription, feedRequestUrl, voteRequestUrl='
             postRequestUrl = 'http://localhost:5000/api/v1/entries/' + str(item['id'])
             postServiceResponse = requests.get(postRequestUrl)
             postJsonResponse = postServiceResponse.json()
-
             # Because we added our own custom tag: votes, we create the item here
             # We pass in three params: totalVotes, upVotes, downVotes
             votes_item = VotesItem(
-                str(item['upVotes'] - item['downVotes']),
-                item['upVotes'],
-                item['downVotes']
+                item['score'],
+                item['upvotes'],
+                item['downvotes']
             )
 
             # Create an item based on the post
             tempItem= Item(
-                title=postJsonResponse['title'],
-                author=postJsonResponse['username'],
-                guid=Guid(postJsonResponse['id']),
-                link='http://localhost:5100/api/v1/votes/' + str(postJsonResponse['id']),
-                categories=postJsonResponse['community'],
-                pubDate=datetime.strptime(postJsonResponse['datePosted'], '%Y-%m-%d %H:%M:%S'),
+                title=postJsonResponse['EntryTitle'],
+                author=postJsonResponse['Username'],
+                guid=Guid(postJsonResponse['EntryID']),
+                link='http://localhost:5100/api/v1/votes/' + str(postJsonResponse['EntryID']),
+                categories=postJsonResponse['Community'],
+                pubDate=datetime.strptime(postJsonResponse['EntryDate'], '%Y-%m-%d %H:%M:%S.%f'),
                 extensions=[votes_item]
             )
             # Add the item to the feed
@@ -339,12 +337,12 @@ def generatePostFeed(feedRequestUrl, feedTitle, feedDescription):
     # For every item in our response, we want to add it to our feed
     for item in jsonResponse:
         tempItem = Item(
-            title=item['title'],
-            author=item['username'],
-            guid=Guid(item['id']),
-            link='http://localhost:5000/api/v1/entries/' + str(item['id']),
-            categories=item['community'],
-            pubDate=datetime.strptime(item['datePosted'], '%Y-%m-%d %H:%M:%S')
+            title=item['EntryTitle'],
+            author=item['Username'],
+            guid=Guid(item['EntryID']),
+            link='http://localhost:5000/api/v1/entries/' + str(item['EntryID']),
+            categories=item['Community'],
+            pubDate=datetime.strptime(item['EntryDate'], '%Y-%m-%d %H:%M:%S.%f')
         )
         itemList.append(tempItem)
 
