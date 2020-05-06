@@ -8,13 +8,13 @@
 ```json
 [
   {
-    "id": "####",
-    "title": "title",
-    "bodyText": "bodyText",
-    "community": "community",
-    "url": "www.url.com",
-    "username": "username",
-    "date": "YYYY-MM-DD HH:MM:SS"
+    "EntryID": "####",
+    "Username": "username",
+    "EntryTitle": "entrytitle",
+    "EntryDate": "community",
+    "Content": "content",
+    "Community": "community",
+    "url": "url"
   }
 ]
 ```
@@ -24,8 +24,9 @@
 [
   {
     "id": "####",
-    "upVotes": "upVotes",
-    "downVotes": "downVotes"
+    "upvotes": "upvotes",
+    "downvotes": "downvotes",
+    "score": "score"
   }
 ]
 ```
