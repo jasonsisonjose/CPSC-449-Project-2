@@ -20,7 +20,7 @@ def Create_Table(tableName, dynamoDbClient, dynamoDbResource):
             {
                 'AttributeName': 'EntryID',
                 'AttributeType': 'N'
-            }                        
+            }
         ],
         KeySchema=[
             {
@@ -40,7 +40,7 @@ def Delete_Table(tableName, dynamoDbResource):
     myTable.delete()
 
 def List_All_Tables(dynamoDbClient):
-    return dynamoDbClient.list_tables()['TableNames'] 
+    return dynamoDbClient.list_tables()['TableNames']
 
 def Search_Table (tableName, dynamoDbResource):
     allEntries = []
@@ -69,12 +69,12 @@ def Create_Entry(tableName, dynamoDbResource, username, entryTitle, content, com
         for entry in allEntries:
             if entry['EntryID']> last_EntryID:
                 last_EntryID = entry['EntryID']
-         
+
     currentID = last_EntryID + 1
     currentDateTime = datetime.datetime.now()
     currentDateTimeStr = str(currentDateTime)
     input_json = {
-        'EntryID'     : currentID, 
+        'EntryID'     : currentID,
         'Username'    : username,
         'EntryTitle'  : entryTitle,
         'EntryDate'   : currentDateTimeStr,
@@ -104,6 +104,7 @@ def Get_All_Entries(tableName, dynamoDbResource):
     items = resp['Items']
     i = 0
     while i < len(items):
+        items[i]['EntryID']=int(items[i]['EntryID'])
         allEntries.append (items[i])
         i += 1
 
@@ -132,7 +133,7 @@ def Get_n_Recent_Entries(tableName, dynamoDbResource, n):
     return nRecentEntries
 
 def Get_n_Recent_Entries_by_Community(tableName, dynamoDbResource, n, community):
-    
+
     allEntries = Get_All_Entries(tableName, dynamoDbResource)
     tableLength = Table_Size(tableName, dynamoDbResource)
     run = tableLength - 1
@@ -196,7 +197,7 @@ app.config['DYNAMO_TABLES'] = [
         KeySchema=[dict(AttributeName='EntryID', KeyType='HASH')],
         AttributeDefinitions=[dict(AttributeName='EntryID', AttributeType='N')],
         ProvisionedThroughput=dict(ReadCapacityUnits=100, WriteCapacityUnits=100)
-    ) 
+    )
 ]
 
 ################################################################################
