@@ -1,8 +1,8 @@
-# CPSC 449 Back End Engineering Project 1
+# CPSC 449 Back End Engineering Project 2
 ## Nicholas Webster, Jason Jose, Gilbert Paderogo
 
 ### Foreman Command
-`foreman start -m post-service=3,vote-service=3,caddy=1`
+`foreman start`
 
 ### All entries have the form
 ```json
