@@ -31,7 +31,7 @@
 ```
 
 ## Backend-For-Frontend
-# View Recent posts from ANY community
+### View Recent posts from ANY community
 **Definition**
 
 `GET /all/new.rss`
@@ -40,7 +40,7 @@
 - `200 OK` on success  
 <p>&nbsp;</p>
 
-# View Recent posts from a SPECIFC community
+### View Recent posts from a SPECIFC community
 **Definition**
 
 `GET /<communityName>/new.rss`
@@ -49,7 +49,7 @@
 - `200 OK` on success  
 <p>&nbsp;</p>
 
-# View Top posts from ANY community
+### View Top posts from ANY community
 **Definition**
 
 `GET /all/top.rss`
@@ -58,7 +58,7 @@
 - `200 OK` on success  
 <p>&nbsp;</p>
 
-# View Top posts from a SPECIFIC community 
+### View Top posts from a SPECIFIC community 
 **Definition**
 
 `GET /<communityName>/top.rss`
@@ -67,7 +67,7 @@
 - `200 OK` on success  
 <p>&nbsp;</p>
 
-# View Hot posts from ANY community
+### View Hot posts from ANY community
 **Definition**
 
 `GET /all/hot.rss`
