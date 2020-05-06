@@ -30,6 +30,13 @@
 ]
 ```
 
+## Backend-For-Frontend
+**Definition**
+`GET /all/top.rss`
+
+**Response**
+- `200 OK` on success  
+
 ## List all entries
 **Definition**
 
